@@ -1,1 +1,1 @@
-# qingyuDB-client
+# qingyu-db-client
