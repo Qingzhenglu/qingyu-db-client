@@ -1,0 +1,19 @@
+/* src/renderer/App.css */
+.header {
+    display: flex;
+    align-items: center;
+    background:rgb(96, 154, 150);
+    padding: 0 20px;
+  }
+  
+  .logo {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .content-wrapper {
+    background: #fff;
+    padding: 24px;
+    min-height: calc(100vh - 64px);
+  }
