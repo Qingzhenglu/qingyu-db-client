@@ -1,6 +1,7 @@
-const EventEmitter = require('events')
+import { EventEmitter } from 'events'
+import { MySQLDriver } from './drivers/mysql.js';
 
-class ConnectionManager extends EventEmitter {
+export class ConnectionManager extends EventEmitter {
     constructor() {
         super() 
         this.connections = new Map() // 存储所有的连接 {id: {config, connection}}
@@ -9,14 +10,19 @@ class ConnectionManager extends EventEmitter {
 
     // 连接
     async connect(config) {
-        const connector = require(`./connectors/${config.type}`)
+        console.log("connect start")
+        console.log(config)
+        const { dbClass } = require(`./drivers/${config.type}.js`)
+        
         try {
-            const connection = await connector.connect(config)
+            const db = new dbClass(config);
+            const pool = db.createPool();
+            // const connection = await connector.connect(config)
             const id = `conn_${++this.currentId}`
-
+            console.log("connect id: " + id)
             this.connections.set(id, {
                 config,
-                connection,
+                pool,
                 createdAt: new Date(),
                 lastUsed: new Date()
             })
@@ -43,17 +49,21 @@ class ConnectionManager extends EventEmitter {
 
     // 测试连接
     async testConnection(config) {
+        // const { dbClass } = require(`./drivers/${config.type}.js`);
+        // const { MySQLDriver } = require('./drivers/mysql');
+        const db = new MySQLDriver(config, true);
         try {
-          const result = await this.connect(config)
+        //   const result = await this.connect(config)
+            const result = await db.testConnection(config);
+            console.log(result);
           if (result.success) {
-            await this.disconnect(result.id)
             return { success: true }
           }
           return result
-        } catch (error) {
-          return { success: false, error: error.message }
+        } catch (err) {
+          return { success: false, error: err.message }
         }
-      }
+    }
 
     // 获取连接信息
     getConnection(id) {
@@ -72,9 +82,7 @@ class ConnectionManager extends EventEmitter {
             type: data.config.type,
             name: data.config.name || 'Unnamed',
             status: 'connected',
-            createdAt: data.createdAt
+            createdAt: data.createdAt || new Date().toISOString()
         }))
     }
 }
-
-module.exports = new ConnectionManager()

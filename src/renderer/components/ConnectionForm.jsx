@@ -12,14 +12,15 @@ export default function ConnectionForm({ onSave, onTest, initialValues }) {
 
     const handleTest = async () => {
         try {
-            const values = await form.validateFields()
+            const values = await form.validateFields()  // 表单验证
             setTesting(true)
+            console.log("In ConnectionForm test message "+ values)
             const result = await onTest(values)
-            console.log(result.success)
+            
             if (result.success) {
                 message.success('连接测试成功')
             } else {
-                message.error(`连接失败： $(result.message)`)
+                message.error(`连接失败： ${result.message}`)
             }
         } catch (error) {
             message.error('请填写完整的连接信息')
@@ -44,10 +45,10 @@ export default function ConnectionForm({ onSave, onTest, initialValues }) {
     return (
         <Form name="connectionForm" form={form} layout="vertical" initialValues={initialValues}>
             <Form.Item name="name" label="数据库连接名称" rules={[{ required: true }]}>
-                <Input placeholder="我的数据库连接" />
+                <Input placeholder="我的数据库连接" value="test"/>
             </Form.Item>
 
-            <Form.Item name="type" label="数据库类型" rules={[{ required: true }]}>
+            <Form.Item name="type" label="数据库类型" rules={[{ required: true }]} >
                 <Select>
                     <Option value="mysql">MySQL</Option>
                     <Option value="postgres">PostgreSQL</Option>
@@ -59,21 +60,21 @@ export default function ConnectionForm({ onSave, onTest, initialValues }) {
                 { ({ getFieldValue }) => getFieldValue('type') !== 'sqlite' ? (
                     <>
                     <Form.Item name="host" label="主机" rules={[{ required: true }]}>
-                        <Input placeholder="localhost" />
+                        <Input placeholder="localhost" defaultValue="127.0.0.1" />
                     </Form.Item>
-                    <Form.Item name="port" label="端口">
-                        <Input type="number" />
+                    <Form.Item name="port" label="端口" rules={[{ required: true }]}>
+                        <Input type="number" defaultValue="3306"/>
                     </Form.Item>
-                    <Form.Item name="user" label="用户名">
+                    <Form.Item name="user" label="用户名" rules={[{ required: true }]}>
+                        <Input defaultValue="root" />
+                    </Form.Item>
+                    <Form.Item name="password" label="密码" rules={[{ required: true }]}>
+                        <Input.Password defaultValue="123456" />
+                    </Form.Item>
+                    <Form.Item name="database" label="数据库名" rules={[{ required: true }]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item name="password" label="密码">
-                        <Input.Password />
-                    </Form.Item>
-                    <Form.Item name="database" label="数据库名">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="ssl" label="SSL" valuePropName="checked">
+                    <Form.Item name="ssl" label="SSL" valuePropName="checked" rules={[{ required: true }]}>
                         <Switch />
                     </Form.Item>
                     </>

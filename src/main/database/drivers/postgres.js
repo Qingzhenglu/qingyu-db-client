@@ -1,4 +1,4 @@
-const { Client } = require('pg')
+import { Client } from 'pg'
 
 module.exports = {
   async connect(config) {
@@ -19,5 +19,11 @@ module.exports = {
     if (connection && connection.end) {
       await connection.end()
     }
+  }
+}
+
+export class PostgreSQLDriver {
+  constructor() {
+    
   }
 }

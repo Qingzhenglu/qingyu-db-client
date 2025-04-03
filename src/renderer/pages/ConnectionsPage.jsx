@@ -12,7 +12,7 @@ export default function ConnectionsPage() {
   const [editingConn, setEditingConn] = useState(null)
 
   const loadConnections = async () => {
-    const conns = await listConnections()
+    const conns = await window.electronAPI.listConnections()
     if (conns !== null) {
         setConnections(conns)
     }
@@ -23,14 +23,14 @@ export default function ConnectionsPage() {
   }, [])
 
   const handleSave = async (config) => {
-    await connect(config)
+    await window.electronAPI.connect(config)
     await loadConnections()
     setActiveTab('list')
     setEditingConn(null)
   }
 
   const handleTest = async (config) => {
-    await window.electronAPI.testConnection(config)
+    return await window.electronAPI.testConnection(config)
   }
 
   return (
@@ -66,7 +66,7 @@ export default function ConnectionsPage() {
         </TabPane>
         <TabPane tab={editingConn ? '编辑连接' : '新建连接'} key="form">
           <ConnectionForm
-            initialValues={{ type: 'sqlite' }}
+            initialValues={{ type: 'mysql' }}
             onSave={handleSave}
             onTest={handleTest}
           />

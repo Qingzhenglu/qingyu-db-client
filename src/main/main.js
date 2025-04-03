@@ -1,39 +1,34 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
-import { fileURLToPath } from 'url'
-// import ipc from 'ipc'
+import { fileURLToPath } from 'url';
+import { registerDbHandlers } from '../shared/ipc/dbHandlers.js';
+import { DatabaseService } from '../main/services/DatabaseService.js'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-ipcMain.handle('ping', () => {
-  console.log('Main: ping received') // 主进程日志
-  return 'pong'
-})
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // 全局变量保持窗口引用
-let mainWindow
+let mainWindow;
+
 
 function createWindow() {
-    //创建浏览器窗口
-    mainWindow =  new BrowserWindow({
-        width: 1200,
-        height: 800,
-        webPreferences: {
-            preload: path.join(__dirname, '../preload/preload.js'),
-            nodeIntegration: false,
-            contextIsolation: true
-          }
-    });
+	//创建浏览器窗口
+	mainWindow = new BrowserWindow({
+		width: 1200,
+		height: 800,
+		webPreferences: {
+			preload: path.join(__dirname, './preload.js'),
+			nodeIntegration: false,
+			contextIsolation: true,
+		},
+	});
 
-    if (process.env.NODE_ENV === 'development') {
-        mainWindow.loadURL('http://localhost:3000')
-        mainWindow.webContents.openDevTools()
-      } else {
-        mainWindow.loadFile('dist/renderer/index.html')
-      }
+	if (process.env.NODE_ENV === 'development') {
+		mainWindow.loadURL('http://localhost:3000');
+		mainWindow.webContents.openDevTools();
+	} else {
+		mainWindow.loadFile('dist/renderer/index.html');
+	}
 }
-
-
 
 // // 数据库连接模块（后续实现）
 // const db = require('./db/core');
@@ -73,7 +68,12 @@ function createWindow() {
 
 // Electron准备就绪后初始化
 app.whenReady().then(() => {
-  createWindow()
+	registerDbHandlers();
+	// 在主进程初始化时调用
+	// const dbService = new DatabaseService();
+	// dbService.registerHandlers();
+
+	createWindow();
 });
 
 // // 所有窗口关闭时退出应用（macOS除外）
