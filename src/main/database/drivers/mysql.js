@@ -217,4 +217,4 @@ export class MySQLDriver {
   }
 }
 
-
+export default { Driver: MySQLDriver };
