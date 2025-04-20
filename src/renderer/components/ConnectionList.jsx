@@ -2,6 +2,7 @@ import { List, Button, Tag, Popconfirm, message } from 'antd'
 import { DatabaseOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons'
 
 export default function ConnectionList({ connections, onEdit, onConnect }) {
+  
   const handleDelete = async (id) => {
     const success = await disconnect(id)
     if (success) {

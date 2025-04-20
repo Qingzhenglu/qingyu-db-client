@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { MySQLDriver } from './drivers/mysql.js';
 
 export class ConnectionManager extends EventEmitter {
 	constructor() {
@@ -12,10 +11,14 @@ export class ConnectionManager extends EventEmitter {
 	async connect(config) {
 		console.log('connect start');
 		console.log(config);
-		const { dbClass } = require(`./drivers/${config.type}.js`);
+		const driverModule = await import(`./drivers/${config.type}.js`);
+		const { Driver } = driverModule.default;
+		const db = new Driver(config);
 
 		try {
-			const db = new dbClass(config);
+			const poolStatus = db.getPoolStatus();
+			console.log("poolStatus: "+ poolStatus);
+			// if (!poolStatus || poolStatus.freeConnections > 0) {}
 			const pool = db.createPool();
 			// const connection = await connector.connect(config)
 			const id = `conn_${++this.currentId}`;
@@ -53,10 +56,10 @@ export class ConnectionManager extends EventEmitter {
 		const driverModule = await import(`./drivers/${config.type}.js`);
 		const { Driver } = driverModule.default;
 		const db = new Driver(config, true);
-
+		console.log(db)
 		try {
 			const result = await db.testConnection(config);
-			console.log(result);
+
 			if (result.success) {
 				return { success: true };
 			}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Card, Tabs, Button } from 'antd'
+import { Card, Tabs, Button, Modal } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import ConnectionForm from '../components/ConnectionForm'
 import ConnectionList from '../components/ConnectionList'
+import ConnectionModal from '../components/ConnectionModal'
 
 const { TabPane } = Tabs
 
@@ -11,10 +12,11 @@ export default function ConnectionsPage() {
   const [activeTab, setActiveTab] = useState('list')
   const [editingConn, setEditingConn] = useState(null)
 
+
   const loadConnections = async () => {
     const conns = await window.electronAPI.listConnections()
     if (conns !== null) {
-        setConnections(conns)
+      setConnections(conns)
     }
   }
 
@@ -34,22 +36,20 @@ export default function ConnectionsPage() {
   }
 
   return (
-    <Card 
-      title="数据库连接管理" 
+
+    <Card
+      title="数据库连接管理"
       extra={
         activeTab === 'list' && (
-          <Button 
-            icon={<PlusOutlined />} 
-            onClick={() => {
-              setEditingConn(null)
-              setActiveTab('form')
-            }}
-          >
-            新建连接
-          </Button>
+          <ConnectionModal
+            initialValues={{ type: 'mysql' }}
+            onSave={handleSave}
+            onTest={handleTest}
+          />
         )
       }
     >
+
       <Tabs activeKey={activeTab} onChange={setActiveTab}>
         <TabPane tab="连接列表" key="list">
           <ConnectionList
@@ -70,7 +70,7 @@ export default function ConnectionsPage() {
             onSave={handleSave}
             onTest={handleTest}
           />
-          <Button 
+          <Button
             style={{ marginTop: 16 }}
             onClick={() => setActiveTab('list')}
           >
